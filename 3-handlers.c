@@ -1,76 +1,73 @@
 #include "monty.h"
 
-
 /**
- * push_handler - pushes an element to the stack
- * @stack: a double pointer to the stack
- * @line_number: the line at which this command is called
+ * add_handler - handles add operation
+ * @s: pointer to stack
+ * @l: line number
  */
-void push_handler(stack_t **stack, unsigned int line_number)
+void add_handler(stack_t **s, unsigned int l)
 {
-	stack_t *new = *stack, *temp;
-	int num;
+	(void)s;
 
-	if (!(global.toks_num) || is_digit(global.toks_num) == 0)
-	{
-		fprintf(stderr, "L%u: usage: push integer\n", line_number);
-		global.err_status = EXIT_FAILURE;
-		return;
-	}
-	num = atoi(global.toks_num);
-	new = add_new_node(num);
-
-	if (check_mode(*stack) == STACK)
-	{
-		temp = (*stack)->next;
-		new->prev = *stack;
-		new->next = temp;
-		if (temp)
-			temp->prev = new;
-		(*stack)->next = new;
-	}
-	else
-	{
-		temp = *stack;
-		while (temp->next)
-			temp = temp->next;
-		new->prev = temp;
-		new->next = NULL;
-		temp->next = new;
-	}
+	calculator('+', "add", l);
 }
 
 /**
- * pall_handler - prints all the values on the stack, starting
- * from the top of the stack
- * @stack: a double pointer to the stack
- * @line_number: the line at which this command is called
+ * sub_handler - handles sub operation
+ * @s: pointer to stack
+ * @l: line number
  */
-void pall_handler(stack_t **stack, unsigned int line_number)
+void sub_handler(stack_t **s, unsigned int l)
 {
-	stack_t *temp = (*stack)->next;
-	(void)line_number;
+	(void)s;
 
-	while (temp != NULL)
-	{
-		printf("%d\n", temp->n);
-		temp = temp->next;
-	}
+	calculator('-', "sub", l);
 }
 
 /**
- * pint_handler -  prints the value at the top of the stack,
- * followed by a new line
- * @stack: a double pointer to the stack
- * @line_number: the line at which this command is called
+ * mul_handler - handles mul operation
+ * @s: pointer to stack
+ * @l: line number
  */
-void pint_handler(stack_t **stack, unsigned int line_number)
+void mul_handler(stack_t **s, unsigned int l)
 {
-	if (!(*stack)->next)
+	(void)s;
+
+	calculator('*', "mul", l);
+}
+
+/**
+ * div_handler - handles div operation
+ * @s: pointer to stack
+ * @l: line number
+ */
+void div_handler(stack_t **s, unsigned int l)
+{
+	(void)s;
+
+	if (global.head && !global.head->n)
 	{
-		fprintf(stderr, "L%u: can't pint, stack empty\n", line_number);
-		global.err_status = EXIT_FAILURE;
+		dprintf(2, "L%u: division by zero\n", l);
+		global.quit = EXIT_FAILURE;
 		return;
 	}
-	printf("%d\n", (*stack)->next->n);
+	calculator('/', "div", l);
+}
+
+/**
+ * mod_handler - handles mod operation
+ * @s: pointer to stack
+ * @l: line number
+ */
+void mod_handler(stack_t **s, unsigned int l)
+{
+	(void)s;
+
+	if (global.head && !global.head->n)
+	{
+		dprintf(2, "L%u: division by zero\n", l);
+		global.quit = EXIT_FAILURE;
+		return;
+	}
+	calculator('%', "mod", l);
 }

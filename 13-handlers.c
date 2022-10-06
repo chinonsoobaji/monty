@@ -9,16 +9,16 @@ void rotr_handler(stack_t **stack, unsigned int line_number)
 {
 	stack_t *top, *bottom;
 
-	if ((*stack)->next == NULL || (*stack)->next->next == NULL)
+	if ((*stack) == NULL || (*stack)->next == NULL)
 		return;
 
-	top = (*stack)->next;
-	bottom = (*stack)->next;
+	top = (*stack);
+	bottom = (*stack);
 	while (bottom->next != NULL)
 		bottom = bottom->next;
 
 	bottom->prev->next = NULL;
-	(*stack)->next = bottom;
+	(*stack) = bottom;
 	bottom->prev = *stack;
 	bottom->next = top;
 	top->prev = bottom;
@@ -36,16 +36,16 @@ void rotl_handler(stack_t **stack, unsigned int line_number)
 {
 	stack_t *top, *bottom;
 
-	if ((*stack)->next == NULL || (*stack)->next->next == NULL)
+	if ((*stack) == NULL || (*stack)->next == NULL)
 		return;
 
-	top = (*stack)->next;
-	bottom = (*stack)->next;
+	top = (*stack);
+	bottom = (*stack);
 	while (bottom->next != NULL)
 		bottom = bottom->next;
 
 	top->next->prev = *stack;
-	(*stack)->next = top->next;
+	(*stack) = top->next;
 	bottom->next = top;
 	top->next = NULL;
 	top->prev = bottom;
@@ -54,34 +54,23 @@ void rotl_handler(stack_t **stack, unsigned int line_number)
 }
 
 /**
- * stack_handler - Converts a queue to a stack.
+ * pstr_handler - Prints the string contained in a stack_t linked list.
  * @stack: A pointer to the top mode node of a stack_t linked list.
  * @line_number: The current working line number of a Monty bytecodes file.
  */
-void stack_handler(stack_t **stack, unsigned int line_number)
+void pstr_handler(stack_t **stack, unsigned int line_number)
 {
-	(*stack)->n = STACK;
-	(void)line_number;
-}
+	stack_t *tmp = (*stack);
 
-/**
- * queue_handler - Converts a stack to a queue.
- * @stack: A pointer to the top mode node of a stack_t linked list.
- * @line_number: The current working line number of a Monty bytecodes file.
- */
-void queue_handler(stack_t **stack, unsigned int line_number)
-{
-	(*stack)->n = QUEUE;
-	(void)line_number;
-}
+	while (tmp && tmp->n != 0 && (tmp->n > 0 && tmp->n <= 127))
+	{
+		if (tmp->n > 127 || tmp->n < 0)
+			break;
+		printf("%c", tmp->n);
+		tmp = tmp->next;
+	}
 
-/**
- * nop_handler - Does absolutely nothing for the Monty opcode 'nop'.
- * @stack: A pointer to the top mode node of a stack_t linked list.
- * @line_number: The current working line number of a Monty bytecodes file.
- */
-void nop_handler(stack_t **stack, unsigned int line_number)
-{
-	(void)stack;
+	printf("\n");
+
 	(void)line_number;
 }
