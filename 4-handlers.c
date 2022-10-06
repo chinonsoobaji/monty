@@ -1,53 +1,99 @@
 #include "monty.h"
 
-/**
- * pint_handler - handles pint operation
- * @s: pointer to stack
- * @l: line number
- */
-void pint_handler(stack_t **s, unsigned int l)
-{
-	(void)s;
 
-	if (!global.head)
+/**
+ * pop_handler - a function that removes the top element of the stack
+ * @stack: double pointer to the stack
+ * @line_number: the line number where the pop command is called
+ *
+ * Return: nothing
+ */
+void pop_handler(stack_t **stack, unsigned int line_number)
+{
+	stack_t *temp;
+
+	if (!(*stack)->next)
 	{
-		dprintf(2, "L%u: can't pint, stack empty\n", l);
-		global.quit = EXIT_FAILURE;
+		fprintf(stderr, "L%u: can't pop an empty stack\n", line_number);
+		global.err_status = EXIT_FAILURE;
 		return;
 	}
-	printf("%d\n", global.head->n);
+	temp = (*stack)->next->next;
+	free((*stack)->next);
+	if (temp)
+		temp->prev = *stack;
+
+	(*stack)->next = temp;
 }
 
 /**
- * temp_handler - handles mode change
- * @s: pointer to stack
- * @l: line number
+ * swap_handler - swaps the top two elements of the stack
+ * @stack: double pointer to the stack
+ * @line_no: the line number where the pop command is called
+ * Return: nothing
  */
-void temp_handler(stack_t **s, unsigned int l)
+void swap_handler(stack_t **stack, unsigned int line_no)
 {
-	(void)s;
-	(void)l;
+	stack_t *temp = (*stack)->next;
+	int stack_len;
+
+	stack_len = stack_size((*stack)->next);
+	if (stack_len < 2)
+	{
+		fprintf(stderr, "L%d: can't swap, stack too short\n", line_no);
+		global.err_status = EXIT_FAILURE;
+		return;
+	}
+	temp = temp->next;
+	(*stack)->next->next = temp->next;
+	(*stack)->next->prev = temp;
+	if (temp->next)
+		temp->next->prev = (*stack)->next;
+	temp->next = (*stack)->next;
+	temp->prev = *stack;
+	(*stack)->next = temp;
 }
 
 /**
- * pchr_handler - Prints the character in the top value
- *               node of a stack_t linked list.
- * @stack: A pointer to the top mode node of a stack_t linked list.
- * @line_number: The current working line number of a Monty bytecodes file.
+ * add_handler - adds the top two elements of the stack
+ * @stack: double pointer to the stack
+ * @line_no: the line number where the pop command is called
+ * Return: nothing
  */
-void pchr_handler(stack_t **stack, unsigned int line_number)
+void add_handler(stack_t **stack, unsigned int line_no)
 {
-	if ((*stack) == NULL)
+	int size = stack_size((*stack)->next);
+
+	if (size < 2)
 	{
-		fprintf(stderr, "L%u: can't pchar, stack empty\n", line_number);
-		global.quit = EXIT_FAILURE;
+		fprintf(stderr, "L%d: can't add, stack too short\n", line_no);
+		global.err_status = EXIT_FAILURE;
 		return;
 	}
-	if ((*stack)->n < 0 || (*stack)->n > 127)
+	(*stack)->next->next->n += (*stack)->next->n;
+
+	pop_handler(stack, line_no);
+}
+
+/**
+ * sub_handler - subtracts the top element of the stack
+ *				from the second top element
+ * @stack: double pointer to the stack
+ * @line_no: the line number where the pop command is called
+ * Return: nothing
+ */
+void sub_handler(stack_t **stack, unsigned int line_no)
+{
+	int size = stack_size((*stack)->next);
+
+	if (size < 2)
 	{
-		fprintf(stderr, "L%u: can't pchar, value out of range\n", line_number);
-		global.quit = EXIT_FAILURE;
+		fprintf(stderr, "L%d: can't sub, stack too short\n", line_no);
+		global.err_status = EXIT_FAILURE;
 		return;
 	}
-	printf("%c\n", (*stack)->n);
+
+	(*stack)->next->next->n -= (*stack)->next->n;
+
+	pop_handler(stack, line_no);
 }

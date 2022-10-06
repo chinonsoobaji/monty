@@ -1,14 +1,17 @@
-#ifndef MONTY_H
-#define MONTY_H
-#define _POSIX_C_SOURCE 200809L
+#ifndef __MONTY_H__
+#define __MONTY_H__
+
+#define  _POSIX_C_SOURCE 200809L
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#define STACK 0
-#define QUEUE 1
-#define DELIM " \t"
+#define STACK 1
+#define QUEUE 0
+#define DELIM " \n\t\r\a\b"
+#define FAILURE -1
+
 
 /**
  * struct stack_s - doubly linked list representation of a stack (or queue)
@@ -41,74 +44,50 @@ typedef struct instruction_s
 } instruction_t;
 
 /**
- * struct global_s - a global struct to hold info regarding the entire project
- * @head: head of the stack
- * @tail: tail of the stack
- * @mode: mode of the data LIFO or FIFO
- * @quit: variable for exit
- * @arg: argument if any
+ * struct global_s - global struct for monty variable
+ * @err_status: error status to hold error term
+ * @toks_num: number tokenized from the line read
  */
 typedef struct global_s
 {
-	stack_t *head;
-	stack_t *tail;
-	int mode;
-	int quit;
-	char *arg;
+	int err_status;
+	char *toks_num;
 } global_t;
 
-/* ========== Globals =========== */
 extern global_t global;
 
-/* =========== Handlers ============ */
-void push_handler(stack_t **, unsigned int);
-void pall_handler(stack_t **, unsigned int);
-void pop_handler(stack_t **, unsigned int);
-void swap_handler(stack_t **, unsigned int);
-void add_handler(stack_t **, unsigned int);
-void nop_handler(stack_t **, unsigned int);
-void sub_handler(stack_t **, unsigned int);
-void mul_handler(stack_t **, unsigned int);
-void div_handler(stack_t **, unsigned int);
-void mod_handler(stack_t **, unsigned int);
-void pint_handler(stack_t **, unsigned int);
-void rotl_handler(stack_t **, unsigned int);
-void pstr_handler(stack_t **, unsigned int);
-void pchr_handler(stack_t **, unsigned int);
-void rotr_handler(stack_t **, unsigned int);
-instruction_t _get_handler(const char *);
+int exec_monty(FILE *);
+void (*get_op_func(char *ops))(stack_t **, unsigned int);
+stack_t *stack_init(void);
+int check_mode(stack_t *);
 
-/* =========== Stack Ops =========== */
-void push(int);
-int pop(void);
-void print_stack(void);
 
-/* =========== Queue Ops =========== */
-int dequeue(void);
-void print_queue(void);
-void enqueue(int);
+int is_digit(char *);
+int stack_size(stack_t *);
+stack_t *add_new_node(int);
 
-/* =========== custome Ops =========== */
-void swap(void);
-void calculator(char, char *,  int);
 
-/* ========== File handlers ========= */
-char *read_file(const char *);
+void push_handler(stack_t **stack, unsigned int line_number);
+void pall_handler(stack_t **stack, unsigned int line_number);
+void pint_handler(stack_t **stack, unsigned int line_number);
+void pop_handler(stack_t **stack, unsigned int line_number);
+void swap_handler(stack_t **stack, unsigned int line_number);
+void add_handler(stack_t **stack, unsigned int line_number);
+void nop_handler(stack_t **stack, unsigned int line_number);
+void sub_handler(stack_t **stack, unsigned int line_number);
+void div_handler(stack_t **stack, unsigned int line_number);
+void mul_handler(stack_t **stack, unsigned int line_number);
+void mod_handler(stack_t **stack, unsigned int line_number);
+void pchar_handler(stack_t **stack, unsigned int line_number);
+void pstr_handler(stack_t **stack, unsigned int line_number);
+void rotl_handler(stack_t **stack, unsigned int line_number);
+void rotr_handler(stack_t **stack, unsigned int line_number);
+void stack_handler(stack_t **stack, unsigned int line_number);
+void queue_handler(stack_t **stack, unsigned int line_number);
 
-/* ========== Parse functions ========= */
-void parse_instructions(char **);
-int simple_opcodes(char **);
 
-/* ========== Helpers ========== */
-int is_delim(char, char *);
-char **strtow(char *, char *);
-int _isdigit(int);
-int is_number(char *);
-int arrlen(char **);
-void truncate_on_empty_line(char *);
+void free_stack(stack_t **stack);
 
-/* ========== Memory functions ========== */
-void clear_memory(void);
-void free_tokenized(char **);
 
-#endif /* MONTY_H */
+
+#endif /* __MONTY_H__ */
